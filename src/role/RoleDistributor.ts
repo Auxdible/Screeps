@@ -152,7 +152,7 @@ export var roleDistributor = {
       }
     }
   },
-    bodyParts: [MOVE, MOVE, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
+    bodyParts: [MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
       name: 'Distributor',
       memoryName: 'distributor',
       amount: getAmount("harvester"),

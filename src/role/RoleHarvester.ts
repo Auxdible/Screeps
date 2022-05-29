@@ -54,7 +54,7 @@ export var roleHarvester = {
       }
     }
   },
-  bodyParts: [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK],
+  bodyParts: [MOVE, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK],
   name: 'Harvester',
   memoryName: 'harvester',
   amount: allSpotsList().length,
