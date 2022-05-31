@@ -19,12 +19,15 @@ export var printEconomyStatus = function() {
   console.log(`Can Spawn: ${totalEnergy.couldSpawn} `);
   console.log("------Rooms------");
   for (const spawn of totalEnergy.spawns) {
-    const {energy, canSpawn, id} = spawn;
-    console.log(`- Room ${id} - `);
+      const {energy, canSpawn, id, spawnableEnergy, maxSpawnableEnergy} = spawn;
+      console.log(`- Room ${id} - `);
 
-      console.log(`Energy: ${energy}`);
+      console.log(`Total Room Energy: ${energy}`);
 
       console.log(`Can Spawn: ${canSpawn}`);
+
+      console.log(`Spawnable Energy: ${spawnableEnergy}/${maxSpawnableEnergy}`);
+
   }
 }
 /*
@@ -43,12 +46,23 @@ export var getEconomy = function() {
   for (const room of Object.keys(Game.rooms)) {
     const roomObject = Game.rooms[room];
     let roomEnergy = 0;
-    roomObject.find(FIND_STRUCTURES, {filter: (str) => str.structureType == STRUCTURE_CONTAINER || str.structureType == STRUCTURE_SPAWN || str.structureType == STRUCTURE_STORAGE})
+    roomObject.find(FIND_STRUCTURES, {filter: (str) => str.structureType == STRUCTURE_CONTAINER || str.structureType == STRUCTURE_SPAWN || str.structureType == STRUCTURE_STORAGE || str.structureType == STRUCTURE_EXTENSION})
       .forEach((src) => {
         if ("store" in src) {
           roomEnergy += src.store[RESOURCE_ENERGY];
         }});
     totalEnergy += roomEnergy;
+    let spawnableEnergy = 0;
+    let maxSpawnableEnergy = 0;
+    roomObject.find(FIND_STRUCTURES, {filter: (str) => str.structureType == STRUCTURE_SPAWN || str.structureType == STRUCTURE_EXTENSION})
+      .forEach((src) => {
+
+        if ("store" in src) {
+          let store = src.store.getCapacity(RESOURCE_ENERGY);
+
+          maxSpawnableEnergy += store as number;
+          spawnableEnergy += src.store[RESOURCE_ENERGY];
+        }});
 
     let canSpawn = false;
     roomObject.find(FIND_MY_SPAWNS).forEach((spawn) => { if (!canSpawn) {canSpawn = spawn.spawnCreep([WORK, WORK, WORK], "spawnTest_" + (Math.random() * 10000), {dryRun: true}) == OK; } } );
@@ -56,6 +70,8 @@ export var getEconomy = function() {
       id: room,
       energy: roomEnergy,
       canSpawn: canSpawn,
+      spawnableEnergy: spawnableEnergy,
+      maxSpawnableEnergy: maxSpawnableEnergy,
     };
 
     response.spawns.push(roomObj2);

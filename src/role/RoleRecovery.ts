@@ -2,7 +2,7 @@ import {isTargeted} from "./manager/Creeps";
 import {getCapital, getEconomy} from "../nation/Nation";
 
 
-import {generateSourceList} from "../nation/OutsourcedMining";
+import {generateSourceList} from "../nation/Mining";
 import {roleHarvester} from "./RoleHarvester";
 
 

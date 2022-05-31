@@ -17,7 +17,7 @@ export const tower = {
         tower.heal(tower.pos.findClosestByRange(hurtCreeps) as Creep);
 
       } else {
-        const hurtStructure = tower.pos.findClosestByRange(tower.room.find(FIND_MY_STRUCTURES, { filter: (str) => { return str.hits < str.hitsMax; } }));
+        const hurtStructure = tower.pos.findClosestByRange(tower.room.find(FIND_STRUCTURES, { filter: (str) => { return str.hits < str.hitsMax && str.structureType != STRUCTURE_WALL; } }));
         if (hurtStructure != null) {
           tower.repair(hurtStructure);
         }

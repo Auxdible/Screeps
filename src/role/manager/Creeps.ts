@@ -1,5 +1,5 @@
 import {map} from "lodash";
-import {amountCanMine} from "../../nation/OutsourcedMining";
+import {amountCanMine} from "../../nation/Mining";
 
 
 export const getAmount = function(memoryName: string) {
@@ -21,9 +21,16 @@ export const isTargeted = function(target: Id<any>) {
         if (targets.get(creep.memory.target) == null) {
           targets.set(creep.memory.target, 0);
         } else { targets.set(creep.memory.target, targets.get(creep.memory.target) + 1); }
-        if (targets.get(creep.memory.target) >= amountCanMine(Game.getObjectById(target))) {
-          notSelectable.push(creep.memory.target);
+        if (!(Game.getObjectById(creep.memory.target) instanceof Source)) {
+          if (targets.get(creep.memory.target) >= 1) {
+            notSelectable.push(creep.memory.target)
+          }
+        } else {
+          if (targets.get(creep.memory.target) >= amountCanMine(Game.getObjectById(target), true)) {
+            notSelectable.push(creep.memory.target);
+          }
         }
+
         if (notSelectable.includes(target)) {
           return true;
         }

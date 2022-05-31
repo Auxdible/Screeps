@@ -1,6 +1,6 @@
 import {isTargeted} from "./manager/Creeps";
 import {getCapital} from "../nation/Nation";
-import {allSpotsList, generateSourceList} from "../nation/OutsourcedMining";
+import {allSpotsList, generateSourceList} from "../nation/Mining";
 
 
 export var roleHarvester = {

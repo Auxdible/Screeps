@@ -1,7 +1,7 @@
 import {getAmount, isTargeted} from "./manager/Creeps";
 import {getCapital} from "../nation/Nation";
 
-import {generateDroppedList, generateSourceList} from "../nation/OutsourcedMining";
+import {generateDroppedList, generateSourceList} from "../nation/Mining";
 import {roleHarvester} from "./RoleHarvester";
 
 export var roleDistributor = {
@@ -71,76 +71,61 @@ export var roleDistributor = {
     } else {
       const capital = creep.room.find(FIND_MY_SPAWNS)[0];
       const roomController = creep.room.controller;
-      let autoUpgrade = () => {
-        if (capital != null) {
-          return capital.memory.autoUpgradeController;
-        } else {
-          return false;
-        }
-      };
+
       /*
                * Priorities for Distributor Role
-               * Controller if ticks are under 9000, or spawn auto upgrades controller.
-               * Spawns/Extensions
-               * Build
-               * Controller
+               * Storage
       */
 
 
       if (creep.memory.target == null || Game.getObjectById(creep.memory.target) == null) {
-        let targets: any[] = creep.room.find(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return ((structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_TOWER) &&
-              structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0) && structure.my;
+        let storagesOrContainers = creep.room.find(FIND_MY_STRUCTURES, {
+          filter: (str) => {
+            return (str.structureType == STRUCTURE_STORAGE);
           }
-        });
+        })
 
-        if (targets.length == 0) {
-          targets = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
-        }
-        if (creep.pos.findClosestByPath(targets) != null) {
-          creep.memory.target = creep.pos.findClosestByPath(targets).id;
-        }
-        if (roomController != null) {
-          if (creep.memory.target == null) {
-            creep.memory.target = roomController.id;
-          } else if (roomController.ticksToDowngrade < 9000 || (capital != null && capital.memory.autoUpgradeController)) {
-            creep.memory.target = roomController.id;
+
+        const nearestSource = creep.pos.findClosestByPath(storagesOrContainers);
+        if (nearestSource != null) {
+          creep.memory.target = nearestSource.id;
+          creep.memory.idle = false;
+        } else {
+          if (storagesOrContainers.length > 0) {
+            creep.memory.target = storagesOrContainers[0].id;
+            creep.memory.idle = false;
+          } else {
+            creep.memory.idle = true;
           }
         }
       }
       if (creep.memory.target != null) {
+        if (creep.transfer(Game.getObjectById(creep.memory.target), RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
 
-        if (Game.getObjectById(creep.memory.target) instanceof ConstructionSite) {
-          let site = Game.getObjectById(creep.memory.target);
-          if (site != null) {
-            if (creep.build(site) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(site, {visualizePathStyle: {stroke: '#ff0000'}})
+          creep.moveTo(Game.getObjectById(creep.memory.target), {
+            visualizePathStyle: {
+              stroke: '#0016ff',
+              lineStyle: 'solid'
             }
-            if (site.totalProgress <= 0) {
-              creep.memory.target = null;
+          });
+        } else if (creep.transfer(Game.getObjectById(creep.memory.target), RESOURCE_ENERGY) == ERR_INVALID_TARGET) {
+          let storagesOrContainers = creep.room.find(FIND_MY_STRUCTURES, {
+            filter: (str) => {
+              return (str.structureType == STRUCTURE_STORAGE) && str.store[RESOURCE_ENERGY] > 0;
             }
-          }
-        } else if (Game.getObjectById(creep.memory.target) instanceof Structure) {
-          let str = Game.getObjectById(creep.memory.target);
-          if (str.structureType == STRUCTURE_CONTROLLER) {
+          })
 
-            if (creep.upgradeController(str) == ERR_NOT_IN_RANGE) {
 
-              creep.moveTo(str, {visualizePathStyle: {stroke: '#ff0000'}})
-            } else if (creep.upgradeController(str) == OK) {
-
-              if (str.sign == null) {
-
-                creep.signController(str, "\"Science may never come up with a better office communication system than the coffee break.\" ~ Earl Wilson")
-              }
-            }
-          } else if (str.structureType == STRUCTURE_SPAWN || str.structureType == STRUCTURE_EXTENSION || str.structureType == STRUCTURE_TOWER) {
-            if (creep.transfer(str, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(str, {visualizePathStyle: {stroke: '#ff0000'}})
-            }
-            if (creep.transfer(str, RESOURCE_ENERGY) == ERR_FULL) {
-              creep.memory.target = null;
+          const nearestSource = creep.pos.findClosestByPath(storagesOrContainers);
+          if (nearestSource != null) {
+            creep.memory.target = nearestSource.id;
+            creep.memory.idle = false;
+          } else {
+            if (storagesOrContainers.length > 0) {
+              creep.memory.target = storagesOrContainers[0].id;
+              creep.memory.idle = false;
+            } else {
+              creep.memory.idle = true;
             }
           }
         }
@@ -152,10 +137,10 @@ export var roleDistributor = {
       }
     }
   },
-    bodyParts: [MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
+    bodyParts: [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY],
       name: 'Distributor',
       memoryName: 'distributor',
-      amount: getAmount("harvester"),
+      amount: 2,
   }
 
 
