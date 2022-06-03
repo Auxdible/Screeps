@@ -1,13 +1,28 @@
+/*
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* Mining.ts | Script for miner logic
+* */
 
+/*
+* generateSourceList();
+* Generates a list of all Source objects.
+* */
 export const generateSourceList = function () {
   const sourceList: Id<any>[] = [];
   for (const name of Object.keys(Game.rooms)) {
-    for (const source of Game.rooms[name].find(FIND_SOURCES_ACTIVE)) {
+    for (const source of Game.rooms[name].find(FIND_SOURCES)) {
       sourceList.push(source.id);
     }
   }
   return sourceList;
 }
+
+/*
+* generateDroppedList();
+* Generates a list of all DroppedResource objects.
+* */
 export const generateDroppedList = function () {
   const sourceList: Id<any>[] = [];
   for (const name of Object.keys(Game.rooms)) {
@@ -17,6 +32,11 @@ export const generateDroppedList = function () {
   }
   return sourceList;
 }
+
+/*
+* allSpotsList();
+* Generates a list of a Source Id<any> for every empty slot.
+* */
 export const allSpotsList = function () {
   const sourceList: Id<any>[] = [];
   for (const name of Object.keys(Game.rooms)) {
@@ -28,6 +48,11 @@ export const allSpotsList = function () {
   }
   return sourceList;
 }
+
+/*
+* amountCanMine();
+* Returns the amount of mineable areas nearby a source.
+* */
 export const amountCanMine = function(source: Source, scanCreeps: boolean) {
   let slots = 0;
   const locations = [source.room.lookAt(source.pos.x + 1, source.pos.y),

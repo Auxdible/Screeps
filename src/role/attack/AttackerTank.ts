@@ -1,5 +1,13 @@
-import {Attack} from "../../nation/Attack";
+// IMPORTS
 import {getAttack} from "../../main";
+// IMPORTS
+
+/*
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* AttackerTank.ts | Script for tank role logic
+* */
 
 export var attackerTank = {
   /*

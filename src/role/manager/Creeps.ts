@@ -1,5 +1,18 @@
+// IMPORTS
 import {amountCanMine} from "../../nation/locations/Mining";
+// IMPORTS
 
+/*
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* Creeps.ts | Contains multiple methods that use a Creep object.
+* */
+
+/*
+* findAttackTarget();
+* Takes a creep parameter and based on the environment will return either a Creep, RoomObject, or Structure
+* */
 export const findAttackTarget = function(creep: Creep) {
   /*
   * Attack Priorities
@@ -28,6 +41,11 @@ export const findAttackTarget = function(creep: Creep) {
     return null;
   }
 }
+
+/*
+* getAmount();
+* Returns the amount of creeps with a specific role, using the memoryName as an identifier, including creeps in the queue.
+* */
 export const getAmount = function(memoryName: string) {
   let amount = 0;
   for (const name of Object.keys(Game.creeps)) {
@@ -46,6 +64,11 @@ export const getAmount = function(memoryName: string) {
   }
   return amount;
 }
+
+/*
+* getAmountNoQueue();
+* Returns the amount of creeps with a specific role, using the memoryName as an identifier, excluding creeps that are in the queue.
+* */
 export const getAmountNoQueue = function(memoryName: string) {
   let amount = 0;
   for (const name of Object.keys(Game.creeps)) {
@@ -56,6 +79,11 @@ export const getAmountNoQueue = function(memoryName: string) {
   }
   return amount;
 }
+
+/*
+* isTargeted();
+* Returns if an object has too many or not too many targets.
+* */
 export const isTargeted = function(target: Id<any>) {
   const targets = new Map();
   const notSelectable: any[] = []

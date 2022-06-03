@@ -1,10 +1,16 @@
+// IMPORTS
 import {isTargeted} from "./manager/Creeps";
-import {getCapital, getEconomy} from "../nation/Nation";
-
-
+import {getEconomy} from "../nation/Nation";
 import {generateSourceList} from "../nation/locations/Mining";
 import {roleHarvester} from "./RoleHarvester";
+// IMPORTS
 
+/*
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* RoleRecovery.ts | Script for recovery role logic
+* */
 
 export var roleRecovery = {
   /*

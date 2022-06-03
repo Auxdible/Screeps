@@ -1,8 +1,14 @@
-
-import {Attack} from "../../nation/Attack";
-
+// IMPORTS
 import {findAttackTarget} from "../manager/Creeps";
 import {getAttack} from "../../main";
+// IMPORTS
+
+/*
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* AttackerDPS.ts | Script for dps role logic
+* */
 
 export var attackerDPS = {
   /*

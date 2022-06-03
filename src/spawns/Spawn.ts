@@ -1,6 +1,14 @@
-import { roles } from "../role/manager/Roles";
-import { getAmount } from "../role/manager/Creeps";
+/*
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* Spawn.ts | Script for spawn methods and logic.
+* */
 
+/*
+* spawnCreep();
+* Executes StructureSpawn.spawnCreep() based on the role, at the specified spawn location in the parameters.
+* */
 export const spawnCreep = function(spawn: StructureSpawn, role: { name: string, memoryName: string, amount: number, bodyParts: BodyPartConstant[], autoSpawn: boolean }) {
 
   if (spawn != null && spawn.memory.allowsSpawn) {
@@ -11,6 +19,10 @@ export const spawnCreep = function(spawn: StructureSpawn, role: { name: string, 
   }
 }
 
+/*
+* findAvailibleSpawn();
+* Returns the spawn with the smallest queue to queue a role (roleString)
+* */
 export const findAvailableSpawn = function(roleString: string) {
   const spawns = Object.values(Game.spawns);
   spawns.sort(function(a, b) { return a.memory.queue.length-b.memory.queue.length; });

@@ -1,3 +1,10 @@
+/*
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* Tower.ts | Script for StructureTower logic
+* */
+
 export const tower = {
   run(tower: StructureTower) {
     /*
@@ -17,7 +24,14 @@ export const tower = {
         tower.heal(tower.pos.findClosestByRange(hurtCreeps) as Creep);
 
       } else {
-        const hurtStructure = tower.pos.findClosestByRange(tower.room.find(FIND_STRUCTURES, { filter: (str) => { return str.hits < str.hitsMax && str.structureType != STRUCTURE_WALL; } }));
+        const hurtStructure = tower.pos.findClosestByRange(tower.room.find(FIND_STRUCTURES, { filter: (str) => {
+          if ((str.structureType == STRUCTURE_RAMPART || str.structureType == STRUCTURE_WALL)) {
+            return str.hits < 500000;
+          } else {
+            return str.hits < str.hitsMax;
+          }
+
+        } }));
         if (hurtStructure != null) {
           tower.repair(hurtStructure);
         }

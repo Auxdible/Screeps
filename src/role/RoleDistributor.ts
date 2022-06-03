@@ -1,15 +1,21 @@
-import {getAmount, isTargeted} from "./manager/Creeps";
-import {getCapital} from "../nation/Nation";
+// IMPORTS
+import {isTargeted} from "./manager/Creeps";
+import {generateDroppedList} from "../nation/locations/Mining";
+// IMPORTS
 
-import {generateDroppedList, generateSourceList} from "../nation/locations/Mining";
-import {roleHarvester} from "./RoleHarvester";
+/*
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* RoleDistributor.ts | Script for distributor role logic
+* */
 
 export var roleDistributor = {
   /*
   * Distributor
-  * Cost: 700 Energy
+  * Cost: 900 Energy
   *
-  * Spawns when status = 1 or emergency to recover energy levels. Budget unit.
+  * Sends resources to storage to be used by Maintainers.
   * */
   run(creep: Creep) {
     if (!creep.memory.working) {
@@ -71,12 +77,6 @@ export var roleDistributor = {
     } else {
       const capital = creep.room.find(FIND_MY_SPAWNS)[0];
       const roomController = creep.room.controller;
-
-      /*
-               * Priorities for Distributor Role
-               * Storage
-      */
-
 
       if (creep.memory.target == null || Game.getObjectById(creep.memory.target) == null) {
         let storagesOrContainers = creep.room.find(FIND_MY_STRUCTURES, {

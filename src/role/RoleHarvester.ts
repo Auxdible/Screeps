@@ -1,12 +1,19 @@
+// IMPORTS
 import {isTargeted} from "./manager/Creeps";
-import {getCapital} from "../nation/Nation";
 import {allSpotsList, generateSourceList} from "../nation/locations/Mining";
+// IMPORTS
 
+/*
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* RoleHarvester.ts | Script for harvester role logic
+* */
 
 export var roleHarvester = {
   /*
   * Harvester Role
-  * Cost: 700 Energy
+  * Cost: 900 Energy
   *
   * Harvests statically from a source or outsourced source until death. gg ez
   * */

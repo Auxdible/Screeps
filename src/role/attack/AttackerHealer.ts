@@ -1,6 +1,13 @@
-import {Attack} from "../../nation/Attack";
-import {findAttackTarget} from "../manager/Creeps";
+// IMPORTS
 import {getAttack} from "../../main";
+// IMPORTS
+
+/*
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* AttackerHealer.ts | Script for healer role logic
+* */
 
 export var attackerHealer = {
   /*

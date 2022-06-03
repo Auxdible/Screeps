@@ -1,6 +1,14 @@
-
+// IMPORTS
 import {findAvailableSpawn} from "../spawns/Spawn";
 import {getRoles} from "../main";
+// IMPORTS
+
+/*
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* Attack.ts | Script for attack methods and logic, and the Attack object.
+* */
 
 export class Attack {
   public roomId;

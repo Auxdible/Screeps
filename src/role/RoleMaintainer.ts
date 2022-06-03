@@ -1,13 +1,18 @@
-import {getAmount, isTargeted} from "./manager/Creeps";
-import {getCapital} from "../nation/Nation";
+// IMPORTS
+import {isTargeted} from "./manager/Creeps";
+// IMPORTS
 
-import {generateDroppedList, generateSourceList} from "../nation/locations/Mining";
-import {roleHarvester} from "./RoleHarvester";
+/*
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* RoleMaintainer.ts | Script for maintainer role logic
+* */
 
 export var roleMaintainer = {
   /*
   * Maintainer
-  * Cost: 700 Energy
+  * Cost: 900 Energy
   *
   * Maintain Structures
   * */

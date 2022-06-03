@@ -1,13 +1,19 @@
+// IMPORTS
+import {roles} from "../role/manager/Roles";
+import {getAmount} from "../role/manager/Creeps";
+// IMPORTS
+
 /*
-ResponseStatus Return Flags
-0 = No Emergency
-1 = Emergency
-2 = Recovering
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* Nation.ts | Script for worldwide methods and logic.
 * */
 
-import {roles} from "../role/manager/Roles";
-
-export const miningTerritories = ['W28N6', 'W29N6', 'W28N5'];
+/*
+* printEconomyStatus();
+* Prints the getEconomy(); method in readable format.
+* */
 export var printEconomyStatus = function() {
   const totalEnergy = getEconomy();
   //console.log(JSON.stringify(totalEnergy));
@@ -33,8 +39,12 @@ export var printEconomyStatus = function() {
   }
 }
 /*
+* getEconomy();
+* Will return a response object containing information about the economy.
+*
 * 0 = OK
-* 1 = EMERGENCY */
+* 1 = EMERGENCY
+* */
 export var getEconomy = function() {
   let totalEnergy = 0;
   const spawns: any[] = []
@@ -87,40 +97,17 @@ export var getEconomy = function() {
       response.couldSpawn = true;
     }
   }
-  if (!response.couldSpawn && (getHarvesterCreeps().length == 0 || getDistributorCreeps().length == 0 || getMaintainerCreeps().length == 0)) {
+  if (!response.couldSpawn && (getAmount("harvester") == 0 || getAmount("distributor") == 0 || getAmount("maintainer") == 0)) {
     response.status = 1;
 
   }
   return response;
 }
-export var getHarvesterCreeps = function() {
-  const workers = [];
-  for (const creep of Object.keys(Game.creeps)) {
-    if (Game.creeps[creep].memory.role == "harvester") {
-        workers.push(Game.creeps[creep]);
-    }
-  }
-  return workers;
-}
-export var getMaintainerCreeps = function() {
-  const workers = [];
-  for (const creep of Object.keys(Game.creeps)) {
-    if (Game.creeps[creep].memory.role == "maintainer") {
-      workers.push(Game.creeps[creep]);
-    }
-  }
-  return workers;
-}
-export var getDistributorCreeps = function() {
-  const haulers = [];
-  for (const creep of Object.keys(Game.creeps)) {
-    if (Game.creeps[creep].memory.role == "distributor") {
-      haulers.push(Game.creeps[creep]);
-    }
-  }
-  return haulers;
-}
 
+/*
+* getCapital();
+* Returns the first spawn with the capital flag.
+* */
 export const getCapital = function() {
   for (const spawn of Object.keys(Game.spawns)) {
     if (Game.spawns[spawn].memory.capital) {

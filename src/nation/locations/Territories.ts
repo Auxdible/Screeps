@@ -1,3 +1,10 @@
+/*
+* Auxdible's Screeps Code
+* Written by Auxdible
+*
+* Territories.ts | Script for outsourcing territories that aren't available in scope.
+* */
+
 class Territories {
   public rooms: string[] = []
   public observers = new Map();
