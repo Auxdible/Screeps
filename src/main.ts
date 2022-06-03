@@ -113,7 +113,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   for (const spawn of Object.keys(Game.spawns)) {
     const spawnObj = Game.spawns[spawn];
 
-    console.log(getCost(roles().get(spawnObj.memory.queue[0]).bodyParts) + " cost " +  getSpawnableEnergy(spawnObj.room) + " spawnable energy " + spawnObj.spawning + " spawning " + spawnObj.memory.queue.length);
+
     if (spawnObj != null && spawnObj.spawning == null && spawnObj.memory.queue.length > 0 && getCost(roles().get(spawnObj.memory.queue[0]).bodyParts) <= getSpawnableEnergy(spawnObj.room)) {
         spawnCreep(spawnObj, roles().get(spawnObj.memory.queue[0]));
         spawnObj.memory.queue.shift();
