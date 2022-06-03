@@ -114,7 +114,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     const spawnObj = Game.spawns[spawn];
 
 
-    if (spawnObj != null && spawnObj.spawning == null && spawnObj.memory.queue.length > 0 && getCost(roles().get(spawnObj.memory.queue[0]).bodyParts) <= getSpawnableEnergy(spawnObj.room)) {
+    if (spawnObj != null && spawnObj.spawning == null && spawnObj.memory.queue.length > 0 && spawnObj.memory.queue[0] != null && getCost(roles().get(spawnObj.memory.queue[0]).bodyParts) <= getSpawnableEnergy(spawnObj.room)) {
         spawnCreep(spawnObj, roles().get(spawnObj.memory.queue[0]));
         spawnObj.memory.queue.shift();
       }
