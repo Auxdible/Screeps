@@ -1,7 +1,7 @@
 import {getAmount, isTargeted} from "./manager/Creeps";
 import {getCapital} from "../nation/Nation";
 
-import {generateDroppedList, generateSourceList} from "../nation/Mining";
+import {generateDroppedList, generateSourceList} from "../nation/locations/Mining";
 import {roleHarvester} from "./RoleHarvester";
 
 export var roleMaintainer = {
@@ -136,6 +136,7 @@ export var roleMaintainer = {
       name: 'Maintainer',
       memoryName: 'maintainer',
       amount: 3,
+      autoSpawn: true,
   }
 
 

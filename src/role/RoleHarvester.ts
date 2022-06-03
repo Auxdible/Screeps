@@ -1,6 +1,6 @@
 import {isTargeted} from "./manager/Creeps";
 import {getCapital} from "../nation/Nation";
-import {allSpotsList, generateSourceList} from "../nation/Mining";
+import {allSpotsList, generateSourceList} from "../nation/locations/Mining";
 
 
 export var roleHarvester = {
@@ -58,6 +58,7 @@ export var roleHarvester = {
   name: 'Harvester',
   memoryName: 'harvester',
   amount: allSpotsList().length,
+  autoSpawn: true,
 }
 
 

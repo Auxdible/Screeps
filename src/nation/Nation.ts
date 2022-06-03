@@ -5,10 +5,12 @@ ResponseStatus Return Flags
 2 = Recovering
 * */
 
+import {roles} from "../role/manager/Roles";
+
 export const miningTerritories = ['W28N6', 'W29N6', 'W28N5'];
 export var printEconomyStatus = function() {
   const totalEnergy = getEconomy();
-
+  //console.log(JSON.stringify(totalEnergy));
   console.log(`----------ECONOMY STATUS (Game Tick: ${Game.time})-----------`);
   if (totalEnergy.status == 1) {
     console.log("Status: EMERGENCY! (Status Code: 1)");
@@ -65,7 +67,13 @@ export var getEconomy = function() {
         }});
 
     let canSpawn = false;
-    roomObject.find(FIND_MY_SPAWNS).forEach((spawn) => { if (!canSpawn) {canSpawn = spawn.spawnCreep([WORK, WORK, WORK], "spawnTest_" + (Math.random() * 10000), {dryRun: true}) == OK; } } );
+    roomObject.find(FIND_MY_SPAWNS).forEach((spawn) => { if (!canSpawn) {canSpawn = spawn.spawnCreep(roles().get("harvester").bodyParts, "spawnTest_" + (Math.random() * 10000), {dryRun: true}) == OK; } } );
+    if (canSpawn) {
+      roomObject.find(FIND_MY_SPAWNS).forEach((spawn) => { if (!canSpawn) {canSpawn = spawn.spawnCreep(roles().get("distributor").bodyParts, "spawnTest_" + (Math.random() * 10000), {dryRun: true}) == OK; } } );
+    }
+    if (canSpawn) {
+      roomObject.find(FIND_MY_SPAWNS).forEach((spawn) => { if (!canSpawn) {canSpawn = spawn.spawnCreep(roles().get("maintainer").bodyParts, "spawnTest_" + (Math.random() * 10000), {dryRun: true}) == OK; } } );
+    }
     const roomObj2 = {
       id: room,
       energy: roomEnergy,
@@ -79,7 +87,7 @@ export var getEconomy = function() {
       response.couldSpawn = true;
     }
   }
-  if (!response.couldSpawn && (getHarvesterCreeps().length == 0 || getDistributorCreeps().length == 0)) {
+  if (!response.couldSpawn && (getHarvesterCreeps().length == 0 || getDistributorCreeps().length == 0 || getMaintainerCreeps().length == 0)) {
     response.status = 1;
 
   }
@@ -90,6 +98,15 @@ export var getHarvesterCreeps = function() {
   for (const creep of Object.keys(Game.creeps)) {
     if (Game.creeps[creep].memory.role == "harvester") {
         workers.push(Game.creeps[creep]);
+    }
+  }
+  return workers;
+}
+export var getMaintainerCreeps = function() {
+  const workers = [];
+  for (const creep of Object.keys(Game.creeps)) {
+    if (Game.creeps[creep].memory.role == "maintainer") {
+      workers.push(Game.creeps[creep]);
     }
   }
   return workers;

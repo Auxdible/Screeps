@@ -1,7 +1,7 @@
 import {getAmount, isTargeted} from "./manager/Creeps";
 import {getCapital} from "../nation/Nation";
 
-import {generateDroppedList, generateSourceList} from "../nation/Mining";
+import {generateDroppedList, generateSourceList} from "../nation/locations/Mining";
 import {roleHarvester} from "./RoleHarvester";
 
 export var roleDistributor = {
@@ -84,6 +84,13 @@ export var roleDistributor = {
             return (str.structureType == STRUCTURE_STORAGE);
           }
         })
+        if (storagesOrContainers.length == 0) {
+          storagesOrContainers = Game.rooms[Object.keys(Game.rooms)[0]].find(FIND_MY_STRUCTURES, {
+            filter: (str) => {
+              return (str.structureType == STRUCTURE_STORAGE);
+            }
+          })
+        }
 
 
         const nearestSource = creep.pos.findClosestByPath(storagesOrContainers);
@@ -141,6 +148,7 @@ export var roleDistributor = {
       name: 'Distributor',
       memoryName: 'distributor',
       amount: 2,
+      autoSpawn: true,
   }
 
 
