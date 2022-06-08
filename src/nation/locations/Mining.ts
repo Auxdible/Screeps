@@ -12,8 +12,10 @@
 export const generateSourceList = function () {
   const sourceList: Id<any>[] = [];
   for (const name of Object.keys(Game.rooms)) {
-    for (const source of Game.rooms[name].find(FIND_SOURCES)) {
-      sourceList.push(source.id);
+    if (Game.rooms[name].controller != null && Game.rooms[name].controller?.my) {
+      for (const source of Game.rooms[name].find(FIND_SOURCES)) {
+        sourceList.push(source.id);
+      }
     }
   }
   return sourceList;
@@ -34,15 +36,44 @@ export const generateDroppedList = function () {
 }
 
 /*
+* generateStoragesList();
+* Generates a list of all Storage objects.
+* */
+export const generateStorageList = function () {
+  const sourceList: StructureStorage[] = [];
+  for (const name of Object.keys(Game.rooms)) {
+    for (const source of Game.rooms[name].find(FIND_MY_STRUCTURES, { filter: (structure) => {
+      return (structure.structureType == STRUCTURE_STORAGE) && structure.store[RESOURCE_ENERGY] > 0; }})) {
+      sourceList.push(source as StructureStorage);
+    }
+  }
+  return sourceList;
+}
+
+/*
+* generateConstructionSites();
+* Generates a list of all ids for construction sites.
+* */
+export const generateConstructionSites = function () {
+  const sourceList: Id<any>[] = [];
+  for (const name of Object.keys(Game.constructionSites)) {
+    sourceList.push(Game.constructionSites[name].id);
+  }
+  return sourceList;
+}
+
+/*
 * allSpotsList();
 * Generates a list of a Source Id<any> for every empty slot.
 * */
 export const allSpotsList = function () {
   const sourceList: Id<any>[] = [];
   for (const name of Object.keys(Game.rooms)) {
-    for (const source of Game.rooms[name].find(FIND_SOURCES)) {
-      for (let i = 0; i < amountCanMine(source, false); i++) {
-        sourceList.push(source.id);
+    if (Game.rooms[name].controller?.my) {
+      for (const source of Game.rooms[name].find(FIND_SOURCES)) {
+        for (let i = 0; i < amountCanMine(source, false); i++) {
+          sourceList.push(source.id);
+        }
       }
     }
   }

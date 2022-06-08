@@ -1,5 +1,5 @@
 // IMPORTS
-import {getAttack} from "../../main";
+
 // IMPORTS
 
 /*
@@ -8,6 +8,9 @@ import {getAttack} from "../../main";
 *
 * AttackerHealer.ts | Script for healer role logic
 * */
+
+import {getAttack} from "../../nation/Attack";
+import {Creeps} from "../manager/Creeps";
 
 export var attackerHealer = {
   /*
@@ -30,32 +33,46 @@ export var attackerHealer = {
     } else {
       if (getAttack(creep.memory.attackId) != null) {
         let attack = getAttack(creep.memory.attackId);
+        let attackObj = null;
+
         if (attack != null) {
-          // Rendezvous
-          if (!attack.started) {
-            if (creep.pos == attack.rendezvous) {
-              creep.move(RIGHT);
-            } else {
-              creep.say("Rendezvous");
-              creep.moveByPath(PathFinder.search( creep.pos,{pos: attack.rendezvous, range: 1}).path);
+          for (let attacks of Memory.attacks) {
+            if (attack.attackId == attacks.attackId) {
+              attackObj = attacks;
             }
-          } else if (attack.started) {
-            if (Game.rooms[attack.roomId] == null) {
-              if (attack.hasTank() == null) {
-                creep.moveByPath(PathFinder.search(creep.pos, {pos: new RoomPosition(25, 25, attack.roomId), range: 1}).path);
+          }
+          if (attackObj != null) {
+            // Rendezvous
+            if (!attackObj.started) {
+              if (creep.pos.roomName == attack.rendezvous.roomName) {
+                creep.say("Rendezvous");
+                creep.moveTo(24, 24);
+              } else {
+                Creeps.pathFind(creep, new RoomPosition(24, 24, attack.rendezvous.roomName), '#aa404f', 'dotted');
               }
-            } else if (Game.rooms[attack.roomId] != null && creep.room.name != attack.roomId) {
-              creep.moveByPath(PathFinder.search(creep.pos, {pos: new RoomPosition(25, 25, attack.roomId), range: 1}).path);
-            } else if (Game.rooms[attack.roomId] != null && creep.room.name == attack.roomId) {
-              let target = creep.room.find(FIND_MY_CREEPS, {filter: (creepDamaged) => { return creepDamaged.hits < creepDamaged.hitsMax; }})
-              if (target.length > 0) {
-                if (creep.heal(creep.pos.findClosestByPath(target) as Creep) == ERR_NOT_IN_RANGE) {
-                  creep.moveTo(creep.pos.findClosestByPath(target) as Creep);
+            } else if (attackObj.started) {
+              if (Game.rooms[attack.roomId] == null) {
+                if (attack.hasTank() == null) {
+                  Creeps.pathFind(creep, new RoomPosition(24, 24, attack.roomId), '#aa404f', 'dotted');
+                }
+              } else if (Game.rooms[attack.roomId] != null && creep.room.name != attack.roomId) {
+                creep.say("Attack");
+                Creeps.pathFind(creep, new RoomPosition(24, 24, attack.roomId), '#aa404f', 'dotted');
+              } else if (Game.rooms[attack.roomId] != null && creep.room.name == attack.roomId) {
+                let target = creep.room.find(FIND_MY_CREEPS, {
+                  filter: (creepDamaged) => {
+                    return creepDamaged.hits < creepDamaged.hitsMax;
+                  }
+                })
+                if (target.length > 0) {
+                  if (creep.heal(creep.pos.findClosestByPath(target) as Creep) == ERR_NOT_IN_RANGE) {
+                    Creeps.pathFind(creep, creep.pos.findClosestByPath(target)?.pos as RoomPosition, '#aa404f', 'solid');
+                  }
                 }
               }
             }
           }
-        }
+        } else { creep.memory.attackId = null; }
       }
     }
 

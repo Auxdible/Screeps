@@ -29,7 +29,6 @@ class Names {
     'Pour Over',
     'Moka Pot',
     'Percolator',
-    'Mocha',
     'Affogato',
     'Irish',
     'Caffe Correcto',

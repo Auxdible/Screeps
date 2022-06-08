@@ -1,5 +1,5 @@
 // IMPORTS
-import {isTargeted} from "./manager/Creeps";
+import {Creeps} from "./manager/Creeps";
 import {getEconomy} from "../nation/Nation";
 import {generateSourceList} from "../nation/locations/Mining";
 import {roleHarvester} from "./RoleHarvester";
@@ -25,7 +25,7 @@ export var roleRecovery = {
     } else {
     if (!creep.memory.working) {
       if (creep.memory.target == null) {
-        let sourcesId = generateSourceList().filter((source) => !isTargeted(source));
+        let sourcesId = generateSourceList().filter((source) => !Creeps.isTargeted(source));
         let sources: any[] = [];
         sourcesId.forEach((src) => { sources.push(Game.getObjectById(src)); })
         const nearestSource = creep.pos.findClosestByPath(sources);
@@ -38,14 +38,8 @@ export var roleRecovery = {
       }
 
 
-      if (creep.memory.target != null && creep.harvest(Game.getObjectById(creep.memory.target)) != ERR_INVALID_TARGET && creep.harvest(Game.getObjectById(creep.memory.target)) == ERR_NOT_IN_RANGE) {
-
-        creep.moveTo(Game.getObjectById(creep.memory.target), {
-          visualizePathStyle: {
-            stroke: '#0eff00',
-            lineStyle: 'solid'
-          }
-        });
+      if (creep.memory.target != null && creep.harvest(Game.getObjectById(creep.memory.target as Id<any>)) != ERR_INVALID_TARGET && creep.harvest(Game.getObjectById(creep.memory.target as Id<any>)) == ERR_NOT_IN_RANGE) {
+        Creeps.pathFind(creep, Game.getObjectById(creep.memory.target as Id<any>).pos, '#0eff00', 'solid');
       }
 
       if (creep.store.getFreeCapacity(RESOURCE_ENERGY) <= 0) {
@@ -96,21 +90,21 @@ export var roleRecovery = {
       }
       if (creep.memory.target != null) {
 
-        if (Game.getObjectById(creep.memory.target) instanceof ConstructionSite) {
-          let site = Game.getObjectById(creep.memory.target);
+        if (Game.getObjectById(creep.memory.target as Id<any>) instanceof ConstructionSite) {
+          let site = Game.getObjectById(creep.memory.target as Id<any>);
           if (site != null) {
             if (creep.build(site) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(site, {visualizePathStyle: {stroke: '#ff0000'}})
+              Creeps.pathFind(creep, Game.getObjectById(creep.memory.target as Id<any>).pos, '#ff0000', 'dashed');
             }
             if (site.totalProgress <= 0) {
               creep.memory.target = null;
             }
           }
-        } else if (Game.getObjectById(creep.memory.target) instanceof Structure) {
-          let str = Game.getObjectById(creep.memory.target);
+        } else if (Game.getObjectById(creep.memory.target as Id<any>) instanceof Structure) {
+          let str = Game.getObjectById(creep.memory.target as Id<any>);
           if (roomController != null && str.id == roomController.id) {
             if (creep.upgradeController(roomController) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(roomController, {visualizePathStyle: {stroke: '#ff0000'}})
+              Creeps.pathFind(creep, Game.getObjectById(creep.memory.target as Id<any>).pos, '#ff0000', 'dashed');
             } else if (creep.upgradeController(roomController) == OK) {
               if (roomController.sign == null) {
                 creep.signController(roomController, "\"Science may never come up with a better office communication system than the coffee break.\" ~ Earl Wilson")
@@ -118,7 +112,7 @@ export var roleRecovery = {
             }
           } else if (str.structureType == STRUCTURE_SPAWN || str.structureType == STRUCTURE_EXTENSION) {
             if (creep.transfer(str, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(str, {visualizePathStyle: {stroke: '#ff0000'}})
+              Creeps.pathFind(creep, Game.getObjectById(creep.memory.target as Id<any>).pos, '#ff0000', 'dashed');
             }
             if (creep.transfer(str, RESOURCE_ENERGY) == ERR_FULL) {
               creep.memory.target = null;

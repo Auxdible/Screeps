@@ -6,6 +6,7 @@ import {roleMaintainer} from "../RoleMaintainer";
 import {attackerDPS} from "../attack/AttackerDPS";
 import {attackerTank} from "../attack/AttackerTank";
 import {attackerHealer} from "../attack/AttackerHealer";
+import {roleClaim} from "../RoleClaim";
 // IMPORTS
 
 /*
@@ -28,6 +29,7 @@ export const roles = function() {
   rolesMap.set("dps", attackerDPS);
   rolesMap.set("tank", attackerTank);
   rolesMap.set("healer", attackerHealer);
+  rolesMap.set("claim", roleClaim);
 
   return rolesMap;
 }

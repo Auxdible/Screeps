@@ -1,6 +1,8 @@
 // IMPORTS
-import {findAttackTarget} from "../manager/Creeps";
-import {getAttack} from "../../main";
+import {Creeps} from "../manager/Creeps";
+import {getAttack} from "../../nation/Attack";
+
+
 // IMPORTS
 
 /*
@@ -31,35 +33,46 @@ export var attackerDPS = {
       } else {
         if (getAttack(creep.memory.attackId) != null) {
           let attack = getAttack(creep.memory.attackId);
-          if (attack != null) {
-            // Rendezvous
-            if (!attack.started) {
-              if (creep.pos == attack.rendezvous) {
-                creep.move(RIGHT);
-              } else {
-                creep.say("Rendezvous");
-                creep.moveByPath(PathFinder.search( creep.pos,{pos: attack.rendezvous, range: 1}).path);
-              }
+          let attackObj = null;
 
-            } else if (attack.started) {
-              if (Game.rooms[attack.roomId] == null) {
-                if (attack.hasTank() == null) {
-                  creep.moveByPath(PathFinder.search(creep.pos, {pos: new RoomPosition(25, 25, attack.roomId), range: 1}).path);
+          if (attack != null) {
+            for (let attacks of Memory.attacks) {
+              if (attack.attackId == attacks.attackId) {
+                attackObj = attacks;
+              }
+            }
+            if (attackObj != null) {
+
+              // Rendezvous
+              if (!attackObj.started) {
+                if (creep.pos.roomName == attack.rendezvous.roomName) {
+                  creep.say("Rendezvous");
+                  creep.moveTo(24, 24);
+                } else {
+                  Creeps.pathFind(creep, new RoomPosition(24, 24, attack.rendezvous.roomName), '#aa404f', 'dotted');
                 }
-              } else if (Game.rooms[attack.roomId] != null && creep.room.name != attack.roomId) {
-                creep.moveByPath(PathFinder.search(creep.pos, {pos: new RoomPosition(25, 25, attack.roomId), range: 1}).path);
-              } else if (Game.rooms[attack.roomId] != null && creep.room.name == attack.roomId) {
-                let target = findAttackTarget(creep);
-                if (target != null) {
-                  creep.say("Found!");
-                  if (creep.attack(target) == ERR_NOT_IN_RANGE) {
-                    creep.moveTo(target);
+              } else if (attackObj.started) {
+                if (Game.rooms[attack.roomId] == null) {
+                  if (attack.hasTank() == null) {
+                    Creeps.pathFind(creep, new RoomPosition(24, 24, attack.roomId), '#aa404f', 'dotted');
+                  }
+                } else if (Game.rooms[attack.roomId] != null && creep.room.name != attack.roomId) {
+                  Creeps.pathFind(creep, new RoomPosition(24, 24, attack.roomId), '#aa404f', 'dotted');
+                } else if (Game.rooms[attack.roomId] != null && creep.room.name == attack.roomId) {
+                  let target = Creeps.findAttackTarget(creep);
+                  if (target != null) {
+                    creep.say("Found!");
+                    if (creep.attack(target) == ERR_NOT_IN_RANGE) {
+                      creep.moveTo(target);
+                    }
+                  } else {
+                    Memory.attacks.splice(Memory.attacks.indexOf(attackObj), 1);
                   }
                 }
               }
             }
           }
-        }
+        } else { creep.memory.attackId = null; }
       }
   },
   bodyParts: [MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE,

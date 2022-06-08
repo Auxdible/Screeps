@@ -1,5 +1,5 @@
 // IMPORTS
-import {findAvailableSpawn} from "../spawns/Spawn";
+import {findAvailableSpawn} from "../structures/Spawn";
 import {getRoles} from "../main";
 // IMPORTS
 
@@ -38,7 +38,7 @@ export class Attack {
 
   }
   initiateAttack() {
-    for (var attack of Memory.attacks) {
+    for (let attack of Memory.attacks) {
       if (attack.attackId == this.attackId) {
         attack.started = true;
       }
@@ -56,5 +56,17 @@ export class Attack {
   }
 
 
+}
+/*
+* getAttack();
+* Takes an attackId and will find and create a new Attack object based off the data contained within the Object, otherwise returns null.
+* */
+export const getAttack = function(attackId: number) {
+  for (const attack of Memory.attacks) {
+    if (attack.attackId == attackId) {
+      return new Attack(attack.roomId, attack.squadronType, attack.rendezvous, true, attack.attackId, attack.started);
+    }
+  }
+  return null;
 }
 

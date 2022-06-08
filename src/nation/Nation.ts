@@ -1,6 +1,7 @@
 // IMPORTS
-import {roles} from "../role/manager/Roles";
-import {getAmount} from "../role/manager/Creeps";
+
+import {Creeps} from "../role/manager/Creeps";
+import {getRoles} from "../main";
 // IMPORTS
 
 /*
@@ -72,17 +73,17 @@ export var getEconomy = function() {
         if ("store" in src) {
           let store = src.store.getCapacity(RESOURCE_ENERGY);
 
-          maxSpawnableEnergy += store as number;
+          maxSpawnableEnergy += src.store.getCapacity(RESOURCE_ENERGY);
           spawnableEnergy += src.store[RESOURCE_ENERGY];
         }});
 
     let canSpawn = false;
-    roomObject.find(FIND_MY_SPAWNS).forEach((spawn) => { if (!canSpawn) {canSpawn = spawn.spawnCreep(roles().get("harvester").bodyParts, "spawnTest_" + (Math.random() * 10000), {dryRun: true}) == OK; } } );
+    roomObject.find(FIND_MY_SPAWNS).forEach((spawn) => { if (!canSpawn) {canSpawn = spawn.spawnCreep(getRoles.get("harvester").bodyParts, "spawnTest_" + (Math.random() * 10000), {dryRun: true}) == OK; } } );
     if (canSpawn) {
-      roomObject.find(FIND_MY_SPAWNS).forEach((spawn) => { if (!canSpawn) {canSpawn = spawn.spawnCreep(roles().get("distributor").bodyParts, "spawnTest_" + (Math.random() * 10000), {dryRun: true}) == OK; } } );
+      roomObject.find(FIND_MY_SPAWNS).forEach((spawn) => { if (!canSpawn) {canSpawn = spawn.spawnCreep(getRoles.get("distributor").bodyParts, "spawnTest_" + (Math.random() * 10000), {dryRun: true}) == OK; } } );
     }
     if (canSpawn) {
-      roomObject.find(FIND_MY_SPAWNS).forEach((spawn) => { if (!canSpawn) {canSpawn = spawn.spawnCreep(roles().get("maintainer").bodyParts, "spawnTest_" + (Math.random() * 10000), {dryRun: true}) == OK; } } );
+      roomObject.find(FIND_MY_SPAWNS).forEach((spawn) => { if (!canSpawn) {canSpawn = spawn.spawnCreep(getRoles.get("maintainer").bodyParts, "spawnTest_" + (Math.random() * 10000), {dryRun: true}) == OK; } } );
     }
     const roomObj2 = {
       id: room,
@@ -97,7 +98,8 @@ export var getEconomy = function() {
       response.couldSpawn = true;
     }
   }
-  if (!response.couldSpawn && (getAmount("harvester") == 0 || getAmount("distributor") == 0 || getAmount("maintainer") == 0)) {
+
+  if (!response.couldSpawn && (Creeps.getAmountNoQueue("harvester") == 0 || Creeps.getAmountNoQueue("distributor") == 0 || Creeps.getAmountNoQueue("maintainer") == 0)) {
     response.status = 1;
 
   }
@@ -108,10 +110,10 @@ export var getEconomy = function() {
 * getCapital();
 * Returns the first spawn with the capital flag.
 * */
-export const getCapital = function() {
-  for (const spawn of Object.keys(Game.spawns)) {
-    if (Game.spawns[spawn].memory.capital) {
-      return Game.spawns[spawn];
+export const getCapital = function(room: Room) {
+  for (const spawn of room.find(FIND_MY_SPAWNS)) {
+    if (spawn.memory.capital) {
+      return spawn;
     }
   }
   return null;

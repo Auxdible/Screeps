@@ -15,7 +15,7 @@ export const spawnCreep = function(spawn: StructureSpawn, role: { name: string, 
 
     spawn.spawnCreep(role.bodyParts, `${role.name}_${Math.round(Math.random() * 10000)}`, { memory: { role: role.memoryName, working: false, target: null, idle: false, attackId: null }, });
 
-    spawn.room.visual.text(`🚀 Spawning ${role.name}`, spawn.pos.x + 2, spawn.pos.y + 2, { stroke: "#00ffc3" });
+    spawn.room.visual.text(`🚀 Spawning ${role.name}`, spawn.pos.x, spawn.pos.y - 2.2, { stroke: "#00ffc3", font: "0.7 Times New Roman" });
   }
 }
 

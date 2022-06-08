@@ -18,20 +18,24 @@ declare global {
     uuid: number;
     log: any;
     attacks: Attack[];
+    claimRoom: string | null;
   }
   interface CreepMemory {
     role: string;
     working: boolean;
-    target: Id<any> | null;
+    target: Id<any> | String | null;
     idle: boolean;
     attackId: number | null;
+
   }
   interface SpawnMemory {
     capital: boolean;
     autoUpgradeController: boolean;
     allowsSpawn: boolean;
     queue: string[];
+    mainLink: Id<any> | null;
   }
+
 }
 
 /*

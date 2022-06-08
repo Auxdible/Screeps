@@ -1,5 +1,6 @@
 // IMPORTS
-import {isTargeted} from "./manager/Creeps";
+import {Creeps} from "./manager/Creeps";
+import {generateConstructionSites, generateStorageList} from "../nation/locations/Mining";
 // IMPORTS
 
 /*
@@ -18,15 +19,11 @@ export var roleMaintainer = {
   * */
   run(creep: Creep) {
     if (!creep.memory.working) {
-      if (creep.memory.target == null || Game.getObjectById(creep.memory.target) == null || (creep.memory.target != null && creep.withdraw(Game.getObjectById(creep.memory.target), RESOURCE_ENERGY) == ERR_INVALID_TARGET)) {
-        let storagesOrContainers = creep.room.find(FIND_MY_STRUCTURES, {
-          filter: (str) => {
-            return (str.structureType == STRUCTURE_STORAGE) && str.store[RESOURCE_ENERGY] > 0;
-          }
-        })
+      if (creep.memory.target == null || Game.getObjectById(creep.memory.target as Id<any>) == null || (creep.memory.target != null && creep.withdraw(Game.getObjectById(creep.memory.target as Id<any>), RESOURCE_ENERGY) == ERR_INVALID_TARGET)) {
+        let storagesOrContainers: StructureStorage[] = generateStorageList();
 
 
-        const nearestSource = creep.pos.findClosestByPath(storagesOrContainers);
+        const nearestSource = creep.pos.findClosestByRange(storagesOrContainers);
         if (nearestSource != null) {
           creep.memory.target = nearestSource.id;
           creep.memory.idle = false;
@@ -41,14 +38,8 @@ export var roleMaintainer = {
       }
 
 
-      if (creep.memory.target != null && creep.withdraw(Game.getObjectById(creep.memory.target), RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-
-        creep.moveTo(Game.getObjectById(creep.memory.target), {
-          visualizePathStyle: {
-            stroke: '#0016ff',
-            lineStyle: 'solid'
-          }
-        });
+      if (creep.memory.target != null && creep.withdraw(Game.getObjectById(creep.memory.target as Id<any>), RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        Creeps.pathFind(creep, Game.getObjectById(creep.memory.target as Id<any>).pos, '#0016ff', 'solid');
       }
       if (creep.store.getFreeCapacity(RESOURCE_ENERGY) <= 0) {
         creep.say("💧 Main");
@@ -64,7 +55,7 @@ export var roleMaintainer = {
                * Controller
       */
       const capital = creep.room.find(FIND_MY_SPAWNS)[0];
-      const roomController = creep.room.controller;
+
       let autoUpgrade = () => {
         if (capital != null) {
           return capital.memory.autoUpgradeController;
@@ -72,75 +63,90 @@ export var roleMaintainer = {
           return false;
         }
       };
-      if (creep.memory.target == null || Game.getObjectById(creep.memory.target) == null) {
-        let targets: any[] = creep.room.find(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return ((structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_TOWER) &&
-              structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0) && structure.my && !isTargeted(structure.id);
-          }
-        });
-
-        if (targets.length == 0) {
-          targets = creep.room.find(FIND_MY_CONSTRUCTION_SITES);
-        }
-        if (creep.pos.findClosestByPath(targets) != null) {
-          creep.memory.target = creep.pos.findClosestByPath(targets).id;
-        }
-        if (roomController != null) {
-          if (creep.memory.target == null) {
-            creep.memory.target = roomController.id;
-          } else if (roomController.ticksToDowngrade < 9000 || (capital != null && capital.memory.autoUpgradeController)) {
-            creep.memory.target = roomController.id;
-          }
-        }
-      }
-      if (creep.memory.target != null) {
-
-        if (Game.getObjectById(creep.memory.target) instanceof ConstructionSite) {
-          let site = Game.getObjectById(creep.memory.target);
-          if (site != null) {
-            if (creep.build(site) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(site, {visualizePathStyle: {stroke: '#ff0000'}})
+        if (creep.memory.target == null || Game.getObjectById(creep.memory.target as Id<any>) == null) {
+          let targets: any[] = creep.room.find(FIND_STRUCTURES, {
+            filter: (structure) => {
+              return ((structure.structureType == STRUCTURE_SPAWN || structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_TOWER) &&
+                structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0) && structure.my && !Creeps.isTargeted(structure.id);
             }
-            if (site.totalProgress <= 0) {
-              creep.memory.target = null;
+          });
+            if (targets.length == 0) {
+              targets = generateConstructionSites();
+              console.log(targets);
+              targets.sort((tar, tar2) => { return tar.progress-tar2.progress; })
             }
-          }
-        } else if (Game.getObjectById(creep.memory.target) instanceof Structure) {
-          let str = Game.getObjectById(creep.memory.target);
-          if (str.structureType == STRUCTURE_CONTROLLER) {
 
-            if (creep.upgradeController(str) == ERR_NOT_IN_RANGE) {
 
-              creep.moveTo(str, {visualizePathStyle: {stroke: '#ff0000'}})
-            } else if (creep.upgradeController(str) == OK) {
+            if (targets.length > 0) {
+              creep.memory.target = targets[0];
+            }
 
-              if (str.sign == null) {
-
-                creep.signController(str, "\"Science may never come up with a better office communication system than the coffee break.\" ~ Earl Wilson")
+            let controllers: StructureController[] = [];
+            Object.keys(Game.rooms).forEach((str) => {
+              controllers.push(Game.rooms[str].controller as StructureController);
+            });
+            for (let controller of controllers) {
+              if ("ticksToDowngrade" in controller && controller.ticksToDowngrade < 9000) {
+                creep.memory.target = controller.id;
               }
             }
-          } else if (str.structureType == STRUCTURE_SPAWN || str.structureType == STRUCTURE_EXTENSION || str.structureType == STRUCTURE_TOWER) {
-            if (creep.transfer(str, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(str, {visualizePathStyle: {stroke: '#ff0000'}})
+            controllers.sort((a, b) => {
+              return a.progressTotal - b.progressTotal;
+            })
+            if (targets.length == 0 && creep.memory.target == null) {
+              let lowestController = controllers[0];
+              creep.memory.target = lowestController.id;
             }
-            if (creep.transfer(str, RESOURCE_ENERGY) == ERR_FULL) {
-              creep.memory.target = null;
+
+        }
+
+
+        if (creep.memory.target != null) {
+
+          if (Game.getObjectById(creep.memory.target as Id<any>) instanceof ConstructionSite) {
+            let site = Game.getObjectById(creep.memory.target as Id<any>) as ConstructionSite;
+            if (site != null) {
+              if (creep.build(site) != OK) {
+                Creeps.pathFind(creep, site.pos, '#ff0000', 'dashed');
+              }
+              if (Game.getObjectById(creep.memory.target as Id<any>) == null) {
+                creep.memory.target = null;
+              }
+            }
+          } else if (Game.getObjectById(creep.memory.target as Id<any>) instanceof Structure) {
+            let str = Game.getObjectById(creep.memory.target as Id<any>);
+            if (str.structureType == STRUCTURE_CONTROLLER) {
+
+              if (creep.upgradeController(str) == ERR_NOT_IN_RANGE) {
+
+                Creeps.pathFind(creep, str.pos, '#ff0000', 'dashed');
+              } else if (creep.upgradeController(str) == OK) {
+                Creeps.pathFind(creep, str.pos, '#ff0000', 'dashed');
+                if (str.sign == null) {
+                  creep.signController(str, "\"Science may never come up with a better office communication system than the coffee break.\" ~ Earl Wilson")
+                }
+              }
+            } else if (str.structureType == STRUCTURE_SPAWN || str.structureType == STRUCTURE_EXTENSION || str.structureType == STRUCTURE_TOWER) {
+              if (creep.transfer(str, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                Creeps.pathFind(creep, str.pos, '#ff0000', 'dashed');
+              }
+              if (creep.transfer(str, RESOURCE_ENERGY) == ERR_FULL) {
+                creep.memory.target = null;
+              }
             }
           }
+          if (creep.store[RESOURCE_ENERGY] <= 0) {
+            creep.say("🔨 Pickup");
+            creep.memory.working = false;
+            creep.memory.target = null;
+          }
         }
-      if (creep.store[RESOURCE_ENERGY] <= 0) {
-        creep.say("🔨 Pickup");
-        creep.memory.working = false;
-        creep.memory.target = null;
-      }
     }
-  }
   },
-    bodyParts: [MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY],
+    bodyParts: [MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, CARRY, CARRY, CARRY, CARRY],
       name: 'Maintainer',
       memoryName: 'maintainer',
-      amount: 3,
+      amount: 4 * Object.keys(Game.rooms).length,
       autoSpawn: true,
   }
 

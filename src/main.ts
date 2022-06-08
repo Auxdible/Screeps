@@ -1,14 +1,15 @@
 // IMPORTS
 import { ErrorMapper } from "utils/ErrorMapper";
 import {getEconomy, printEconomyStatus} from "./nation/Nation";
-import {spawnCreep, findAvailableSpawn} from "./spawns/Spawn";
+import {spawnCreep, findAvailableSpawn} from "./structures/Spawn";
 import { roles } from "./role/manager/Roles";
 
-import {getAmount, getAmountNoQueue} from "./role/manager/Creeps";
+import {Creeps} from "./role/manager/Creeps";
 import {allSpotsList, amountCanMine} from "./nation/locations/Mining";
-import {tower} from "./nation/Tower";
-import {Attack} from "./nation/Attack";
+import {tower} from "./structures/Tower";
+import {Attack, getAttack} from "./nation/Attack";
 import { MemoryManager } from "./utils/MemoryManager";
+import {link} from "./structures/Link";
 // IMPORTS
 
 /*
@@ -28,19 +29,16 @@ export const printEco = function() { printEconomyStatus(); }
 * Passes the parameters through an Attack.ts/Attack object and returns the new object.
 * */
 export const createAttack = function(roomId: string, squadron: string[], rendezvous: RoomPosition) { return new Attack(roomId, squadron, rendezvous, false, 0, false); }
-/*
-* getAttack();
-* Takes an attackId and will find and create a new Attack object based off the data contained within the Object, otherwise returns null.
-* */
-export const getAttack = function(attackId: number) {
-  for (const attack of Memory.attacks) {
-    if (attack.attackId == attackId) {
-      return new Attack(attack.roomId, attack.squadronType, attack.rendezvous, true, attack.attackId, attack.started);
-    }
-  }
-  return null;
-}
 
+/*
+* startAttack();
+* Starts an attack using an id parameter
+* */
+export const startAttack = function(attackId: number) {
+  if (getAttack(attackId) != null) {
+    getAttack(attackId)?.initiateAttack();
+  }
+}
 /*
 * getSpawnableEnergy();
 * Takes a room and will loop through all Extensions and Spawns to find the amount of energy that can be used to spawn.
@@ -75,6 +73,15 @@ export const getBodyCost = function(bodyArray: BodyPartConstant[]) {
 export const getRoles = roles();
 
 /*
+* claimRoom();
+* Takes a room id string and will spawn a claimer to claim it.
+* */
+export const claimRoom = function(roomId: string) {
+  findAvailableSpawn("claim");
+  Memory.claimRoom = roomId;
+}
+
+/*
 * loop()
 * Looped every 1 tick in the Screeps world. Uses ErrorMapper for stacktrace.
 * */
@@ -102,7 +109,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   // If the economy is having an emergency, spawn a recovery unit.
   if (getEconomy().status == 1) {
-    if (getAmountNoQueue("recovery") < roles().get("recovery").amount) {
+    if (Creeps.getAmountNoQueue("recovery") < roles().get("recovery").amount) {
       for (let spawn of Object.keys(Game.spawns)) {
         let spawnObj = Game.spawns[spawn];
         if (spawnObj.memory.queue.length != 0) {
@@ -114,13 +121,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
         }
       }
     }
-    if (getAmount("recovery") < roles().get("recovery").amount) {
+    if (Creeps.getAmount("recovery") < roles().get("recovery").amount) {
       findAvailableSpawn("recovery");
     }
   }
 
   // Queue roles
-  let keys = Array.from(roles().keys()).filter((role) => roles().get(role).autoSpawn && (roles().get(role).amount > getAmount(role)));
+  let keys = Array.from(roles().keys()).filter((role) => roles().get(role).autoSpawn && (roles().get(role).amount > Creeps.getAmount(role)));
   keys = keys.sort((a, b) => { return roles().get(a).amount-roles().get(b).amount})
   for (let name of keys) {
     findAvailableSpawn(name);
@@ -129,10 +136,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // Run through spawns, queue, etc.
   for (const spawn of Object.keys(Game.spawns)) {
     const spawnObj = Game.spawns[spawn];
-    if (spawnObj != null && spawnObj.spawning == null && spawnObj.memory.queue.length > 0 && spawnObj.memory.queue[0] != null && getBodyCost(roles().get(spawnObj.memory.queue[0]).bodyParts) <= getSpawnableEnergy(spawnObj.room)) {
+    if (spawnObj != null) {
+      if (spawnObj.spawning == null && spawnObj.memory.queue.length > 0 && spawnObj.memory.queue[0] != null && getBodyCost(roles().get(spawnObj.memory.queue[0]).bodyParts) <= getSpawnableEnergy(spawnObj.room)) {
         spawnCreep(spawnObj, roles().get(spawnObj.memory.queue[0]));
         spawnObj.memory.queue.shift();
       }
+      spawnObj.room.visual.text(`Queue: ${spawnObj.memory.queue.length}`, spawnObj.pos.x, spawnObj.pos.y - 1.5, { stroke: "#b63156", font: "0.7 Times New Roman" });
+    }
     }
 
   // Execute creeps based on the role contained in creep.memory.role.
@@ -140,13 +150,18 @@ export const loop = ErrorMapper.wrapLoop(() => {
     const creepObj = Game.creeps[creep];
     const role = roles().get(creepObj.memory.role);
     if (role != null) {
-      role.run(creepObj);
+        role.run(creepObj);
     }
   }
 
   // Run tower algorithm.
   for (const towers of Object.values(Game.structures).filter((str) => { return str.structureType == STRUCTURE_TOWER; })) {
-    tower.run(<StructureTower> towers);
+    tower.run(towers as StructureTower);
+  }
+
+  // Run link algorithm
+  for (const links of Object.values(Game.structures).filter((str) => { return str.structureType == STRUCTURE_LINK; })) {
+    link.run(links as StructureLink);
   }
 
 });
